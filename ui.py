@@ -37,17 +37,34 @@ class QuizInterface:
         self.window.mainloop()
 
     def get_next_question(self):
-        question_text = self.quiz.next_question()
-        self.canvas.itemconfig(self.question_text, text=question_text)
+        self.canvas.config(bg="white")
+        if self.quiz.still_has_questions():
+            question_text = self.quiz.next_question()
+            self.canvas.itemconfig(self.question_text, text=question_text)
+        else:
+            self.canvas.itemconfig(self.question_text, text=f"You have finished the quiz! You got {self.quiz.score} out of 10 right!")
+            self.true_button.config(state="disabled")
+            self.false_button.config(state="disabled")
+           
 
     def update_score(self):
         self.get_next_question()
-        self.score_text.config(text=f"Score: {self.quiz.score}/{self.quiz.question_number-1}")
+        self.score_text.config(text=f"Score: {self.quiz.score}")
+        
 
     def true_button(self):
-        is_right = self.quiz.check_answer("True")
-        self.update_score()
+        self.flash_screen(self.quiz.check_answer("True"))
+        #self.update_score()
     
     def false_button(self):
-        is_wrong = self.quiz.check_answer("False")
-        self.update_score()
+        self.flash_screen(self.quiz.check_answer("False"))
+        #self.update_score()
+
+    def flash_screen(self, is_right):
+        if is_right:
+            self.canvas.config(bg="green")
+        else:
+            self.canvas.config(bg="red")
+            
+        self.window.after(500, self.update_score)
+            
